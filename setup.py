@@ -1,0 +1,55 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="research_copilot",
+    version="0.1.0",
+    packages=find_packages(),
+    install_requires=[
+        "flask>=2.0.0",
+        "celery>=5.3.0",
+        "redis>=4.0.0",
+        "psycopg2-binary>=2.9.0",
+        "neo4j>=5.0.0",
+        "qdrant-client>=1.1.0",
+        "pypdf2>=3.0.0",
+        "pdfplumber>=0.9.0",
+        "python-dotenv>=0.19.0",
+        "openai>=1.0.0",
+        "numpy>=1.21.0",
+        "pandas>=1.3.0",
+        "scikit-learn>=1.0.0",
+        "torch>=2.0.0",
+        "transformers>=4.30.0",
+        "beautifulsoup4>=4.9.0",
+        "requests>=2.26.0",
+        "gunicorn>=20.1.0",
+    ],
+    extras_require={
+        'dev': [
+            'pytest>=7.0.0',
+            'pytest-cov>=4.0.0',
+            'black>=22.0.0',
+            'flake8>=4.0.0',
+            'mypy>=1.0.0',
+            'isort>=5.0.0',
+        ],
+    },
+    entry_points={
+        'console_scripts': [
+            'research-copilot=research_copilot.cli:main',
+        ],
+    },
+    author="ved1beta",
+    author_email="vedantthote2019@gmail.com.com",
+    description="A Research Paper Co-pilot System with RAG capabilities",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/ved1beta/research-copilot",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.11",
+    ],
+    python_requires=">=3.11",
+)
