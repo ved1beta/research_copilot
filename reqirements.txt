@@ -1,2 +1,6 @@
 os
 plumber
+sqlalchemy 
+psycopg2-binary 
+qdrant-client 
+neo4j
