@@ -1,0 +1,122 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Q&A System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #00ff9d;
+            text-align: center;
+        }
+        #questionForm {
+            margin-top: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        button {
+            background-color: #00ff9d;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #2d2d2d;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: #ff4444;
+            margin-top: 10px;
+        }
+        #loading {
+            display: none;
+            color: #00ff9d;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RAG Q&A System</h1>
+        
+        <form id="questionForm">
+            <textarea id="question" name="question" placeholder="Enter your question here..." required></textarea>
+            <button type="submit" id="submitBtn">Ask Question</button>
+        </form>
+        
+        <div id="loading">Processing your question...</div>
+        <div id="response"></div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $('#questionForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let question = $('#question').val().trim();
+            if (!question) {
+                $('#response').html('<div class="error">Please enter a question</div>');
+                return;
+            }
+            
+            $('#submitBtn').prop('disabled', true);
+            $('#loading').show();
+            $('#response').html('');
+            
+            $.ajax({
+                url: '/ask',
+                method: 'POST',
+                data: {question: question},
+                success: function(data) {
+                    if (data.error) {
+                        $('#response').html('<div class="error">' + data.error + '</div>');
+                    } else {
+                        $('#response').text(data.response);
+                    }
+                },
+                error: function() {
+                    $('#response').html('<div class="error">Error communicating with server</div>');
+                },
+                complete: function() {
+                    $('#submitBtn').prop('disabled', false);
+                    $('#loading').hide();
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

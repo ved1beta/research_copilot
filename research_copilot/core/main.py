@@ -12,7 +12,7 @@ def create_rag_pipeline(
     data_path: str,
     model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
     embedding_model_name: str = "BAAI/bge-small-en",
-    device: str = "cpu"
+    device: str = "cuda"
 ):
     """
     Create a RAG pipeline using local models.
