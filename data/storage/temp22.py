@@ -23,10 +23,10 @@ class MLPapersPipeline:
             
         # Initialize arXiv parameters with simpler categories for testing
         self.base_url = "http://export.arxiv.org/api/query?"
-        self.cs_categories = ['cs.AI', 'cs.LG', 'cs.CL', 'cs.CV', 'stat.ML']  # Simplified for initial testing
-        self.ml_keywords = [
-            'machine learning', 'deep learning', 'neural network',
-            'artificial intelligence', 'transformer'
+        self.cs_categories = [ 'stat.ML','cs.AI']  # Simplified for initial testing
+        self.ml_keywords = ['artificial intelligence', 'transformer'
+            
+            
         ]
         self.results_per_query = 100
         self.wait_time = 3
@@ -216,8 +216,8 @@ def main():
     pipeline = MLPapersPipeline(pdf_dir="ml_papers")
     
     # Process papers in smaller batches
-    total_batches = 1
-    batch_size = 2000
+    total_batches = 100
+    batch_size = 200
     
     total_processed = 0
     for i in range(total_batches):

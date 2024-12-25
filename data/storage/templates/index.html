@@ -1,0 +1,129 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Chat Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <div class="container mx-auto p-4 flex gap-4">
+        <!-- Chat Interface -->
+        <div class="flex-grow max-w-3xl">
+            <div class="bg-gray-800 rounded-lg p-4 h-[80vh] flex flex-col">
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="flex-grow overflow-y-auto mb-4 space-y-4">
+                    <div class="bg-gray-700 rounded p-3">
+                        Welcome! Ask me anything about machine learning papers.
+                    </div>
+                </div>
+                
+                <!-- Input Form -->
+                <form id="query-form" class="flex gap-2">
+                    <input type="text" 
+                           id="user-input" 
+                           class="flex-grow bg-gray-700 text-gray-100 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Ask a question..."
+                           required>
+                    <button type="submit" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition">
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Related Papers -->
+        <div class="w-96">
+            <h2 class="text-xl font-bold mb-4">Related Papers</h2>
+            <div id="papers-container" class="space-y-4">
+                <!-- Papers will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const queryForm = document.getElementById('query-form');
+        const userInput = document.getElementById('user-input');
+        const papersContainer = document.getElementById('papers-container');
+
+        queryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const query = userInput.value;
+            
+            // Add user message
+            appendMessage('You: ' + query, 'bg-gray-700');
+            
+            // Clear input
+            userInput.value = '';
+            
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    appendMessage('Error: ' + data.error, 'bg-red-900');
+                } else {
+                    // Add bot response
+                    appendMessage('Bot: ' + data.response, 'bg-gray-700');
+                    
+                    // Update papers
+                    updatePapers(data.papers);
+                }
+            } catch (error) {
+                appendMessage('Error: ' + error.message, 'bg-red-900');
+            }
+        });
+
+        function appendMessage(message, bgClass) {
+            const div = document.createElement('div');
+            div.className = `${bgClass} rounded p-3`;
+            div.textContent = message;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function updatePapers(papers) {
+            papersContainer.innerHTML = papers.map(paper => `
+                <div class="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition">
+                    <h3 class="font-bold text-blue-400">
+                        <a href="${paper.url}" target="_blank" class="hover:underline">
+                            ${paper.title}
+                        </a>
+                    </h3>
+                    <p class="text-sm text-gray-400 mt-2">${paper.authors}</p>
+                    <div class="mt-2 text-sm">
+                        <span class="text-green-400">Similarity: ${paper.similarity}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
