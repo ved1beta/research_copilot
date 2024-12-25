@@ -23,10 +23,8 @@ class MLPapersPipeline:
             
         # Initialize arXiv parameters with simpler categories for testing
         self.base_url = "http://export.arxiv.org/api/query?"
-        self.cs_categories = [ 'stat.ML','cs.AI']  # Simplified for initial testing
-        self.ml_keywords = ['artificial intelligence', 'transformer'
-            
-            
+        self.cs_categories = [  'cs.LG', 'cs.CL', 'cs.CV']  # Simplified for initial testing
+        self.ml_keywords = ['machine learning', 'deep learning', 'neural network'
         ]
         self.results_per_query = 100
         self.wait_time = 3
@@ -57,7 +55,7 @@ class MLPapersPipeline:
         cat_query = ' OR '.join(f'cat:{cat}' for cat in self.cs_categories)
         
         # Add date constraint for recent papers
-        date_start = (datetime.now() - timedelta(days=365)).strftime('%Y%m%d')
+        date_start = (datetime.now() - timedelta(days=2000)).strftime('%Y%m%d')
         date_end = datetime.now().strftime('%Y%m%d')
         date_query = f"submittedDate:[{date_start}0000 TO {date_end}2359]"
         
@@ -216,8 +214,8 @@ def main():
     pipeline = MLPapersPipeline(pdf_dir="ml_papers")
     
     # Process papers in smaller batches
-    total_batches = 100
-    batch_size = 200
+    total_batches = 1234
+    batch_size = 2
     
     total_processed = 0
     for i in range(total_batches):

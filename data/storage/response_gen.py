@@ -12,7 +12,7 @@ class RAGResponseGenerator:
         
         # Get existing collection - make sure this matches your collection name
         try:
-            self.collection = self.client.get_collection("your_collection_name")
+            self.collection = self.client.get_collection("ml_papers")
         except ValueError:
             print("Collection not found. Please make sure you've added documents to ChromaDB first.")
             raise
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         generator = RAGResponseGenerator()
         
         # Example query
-        query = "What is a transformer?"
+        query = "What is a neural network?"
         print(f"\nProcessing query: {query}")
         response = generator.generate_response(query)
         print(f"Response: {response}")
