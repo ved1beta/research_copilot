@@ -1,45 +1,19 @@
-from langchain_community.llms import HuggingFacePipeline  # Updated import
 import chromadb
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-import torch
-from typing import List, Dict
-import os
+from groq import Groq
+from typing import List
 
 class RAGResponseGenerator:
     def __init__(self, chroma_db_path: str = "./chroma_db"):
-        # Initialize ChromaDB client
         self.client = chromadb.PersistentClient(path=chroma_db_path)
+        self.groq_client = Groq(
+            api_key="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"
+        )
         
-        # Get existing collection - make sure this matches your collection name
         try:
             self.collection = self.client.get_collection("ml_papers")
         except ValueError:
             print("Collection not found. Please make sure you've added documents to ChromaDB first.")
             raise
-        
-        # Initialize the model and tokenizer
-        self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            torch_dtype=torch.float32,
-            device_map="auto"
-        )
-        
-        # Create the pipeline with updated parameters
-        self.pipe = pipeline(
-            "text-generation",
-            model=self.model,
-            tokenizer=self.tokenizer,
-            max_new_tokens=512,
-            do_sample=True,  # Enable sampling
-            temperature=0.7,
-            top_p=0.95,
-            repetition_penalty=1.15
-        )
-        
-        # Create LangChain wrapper
-        self.llm = HuggingFacePipeline(pipeline=self.pipe)
     
     def get_relevant_chunks(self, query: str, n_results: int = 3) -> List[str]:
         """Retrieve relevant document chunks from ChromaDB."""
@@ -75,22 +49,25 @@ class RAGResponseGenerator:
     def generate_response(self, query: str) -> str:
         """Generate a response using RAG pipeline."""
         try:
-            # Get relevant chunks
             context_chunks = self.get_relevant_chunks(query)
-            
-            # Generate prompt
             prompt = self.generate_prompt(query, context_chunks)
             
-            # Generate response using invoke instead of direct call
-            response = self.llm.invoke(prompt)
+            chat_completion = self.groq_client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                model="llama3-8b-8192"
+            )
             
-            return response
+            return chat_completion.choices[0].message.content
             
         except Exception as e:
             print(f"Error details: {str(e)}")
             return f"Error generating response: {str(e)}"
 
-# Debug helper function
 def check_chromadb_contents(db_path: str):
     """Helper function to check ChromaDB contents"""
     client = chromadb.PersistentClient(path=db_path)
@@ -108,15 +85,11 @@ def check_chromadb_contents(db_path: str):
             print(f"Error accessing collection: {str(e)}")
 
 if __name__ == "__main__":
-    # Debug: Check ChromaDB contents first
     print("Checking ChromaDB contents...")
     check_chromadb_contents("./chroma_db")
     
-    # Initialize the generator
     try:
         generator = RAGResponseGenerator()
-        
-        # Example query
         query = "What is a neural network?"
         print(f"\nProcessing query: {query}")
         response = generator.generate_response(query)
