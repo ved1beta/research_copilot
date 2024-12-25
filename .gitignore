@@ -171,4 +171,4 @@ cython_debug/
 .pypirc
 .env
 reach/*
-chroma_db/*
+data/storage/chroma_db/*
